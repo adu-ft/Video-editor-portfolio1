@@ -17,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({
       <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
         {/* Giant Centered Brand Headline */}
         <h2 className="font-['Syne',sans-serif] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#FF4625] tracking-tight mb-8 select-none hover:opacity-95 transition-opacity">
-          Mateo Diaz
+          Adarsh Yadav
         </h2>
 
         {/* Navigation Links */}
@@ -92,7 +92,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="text-neutral-500">(@adrix-ft)</span>
           </div>
 
-          <div>© 2025 Mateo Diaz. All rights reserved.</div>
+          <div>© 2025 Adarsh Yadav. All rights reserved.</div>
         </div>
       </div>
     </footer>

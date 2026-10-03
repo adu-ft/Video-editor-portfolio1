@@ -9,7 +9,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [details, setDetails] = useState(
-    initialService ? `Hi Mateo, I'd like to collaborate on a ${initialService} project.` : ''
+    initialService ? `Hi Adarsh, I'd like to collaborate on a ${initialService} project.` : ''
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

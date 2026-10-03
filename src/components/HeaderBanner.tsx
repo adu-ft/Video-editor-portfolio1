@@ -89,7 +89,7 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({ onContactClick, onPr
           <div className="absolute inset-0 flex items-center justify-center">
             <img
               src="https://img.magnific.com/free-photo/medium-shot-young-man-posing-outdoors_23-2151038555.jpg?semt=ais_hybrid&w=740&q=80"
-              alt="Mateo Diaz — Video Editor Portrait"
+              alt="Adarsh Yadav — Video Editor Portrait"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-[center_28%] grayscale contrast-[1.18] brightness-90 transition-transform duration-700 hover:scale-105"
               onError={(e) => {
@@ -104,14 +104,14 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({ onContactClick, onPr
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.7)_100%)] pointer-events-none" />
           </div>
 
-          {/* Centered Green Status Pill "🟢 I'm Mateo Diaz" (anchored at bottom of banner) */}
+          {/* Centered Green Status Pill "🟢 I'm Adarsh Yadav" (anchored at bottom of banner) */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
             <div className="bg-[#121212]/85 hover:bg-[#181818] transition-all border border-white/15 backdrop-blur-md px-4 py-1.5 rounded-full flex items-center gap-2.5 shadow-xl cursor-default group">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="text-white text-xs font-medium tracking-wide">I'm Mateo Diaz</span>
+              <span className="text-white text-xs font-medium tracking-wide">I'm Adarsh Yadav</span>
             </div>
           </div>
         </div>

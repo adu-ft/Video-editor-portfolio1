@@ -47,7 +47,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({
   if (!isOpen) return null;
 
   const title = isShowreel
-    ? 'Mateo Diaz — 2025 Showreel'
+    ? 'Adarsh Yadav — 2025 Showreel'
     : project?.title || 'Cinematic Preview';
   const category = isShowreel ? 'Full Showreel' : project?.category || 'Showcase';
   const client = isShowreel ? 'Independent Production' : project?.client || 'Private Client';

@@ -1,9 +1,9 @@
 <div align="center">
 
-  <h1>🎬 Mateo Diaz — Video Editor Portfolio</h1>
+  <h1>🎬 Adarsh Yadav — Video Editor Portfolio</h1>
 
   <p>
-    <strong>A high-impact, cinematic portfolio built for visionary video editor Mateo Diaz.</strong>
+    <strong>A high-impact, cinematic portfolio built for visionary video editor Adarsh Yadav.</strong>
   </p>
 
   <p>
@@ -25,7 +25,7 @@
 <h2>🌟 Overview</h2>
 
 <p>
-  This website is a premium, dark-mode portfolio crafted for <strong>Mateo Diaz</strong>, an international video editor specializing in cinematic storytelling, high-end VFX, precision color grading, commercial ads, and high-engagement social reels.
+  This website is a premium, dark-mode portfolio crafted for <strong>Adarsh Yadav</strong>, an international video editor specializing in cinematic storytelling, high-end VFX, precision color grading, commercial ads, and high-engagement social reels.
 </p>
 
 <hr />
@@ -148,15 +148,15 @@ npm run build
 
 <div align="left">
   <p>
-    <strong>Designed & Developed by Adarsh</strong><br />
+    <strong>Designed & Developed by Adarsh Yadav</strong><br />
     • <strong>GitHub:</strong> <a href="https://github.com/adrix-ft">adrix-ft</a><br />
     • <strong>Instagram:</strong> <a href="https://instagram.com/adu.ft">@adu.ft</a><br />
-    • <strong>Client:</strong> Mateo Diaz (Cinematic Video Editor)
+    • <strong>Role:</strong> Video Editor & Motion Designer
   </p>
 </div>
 
 <hr />
 
 <div align="center">
-  <sub>© 2025 Mateo Diaz. All rights reserved. Built with precision and passion.</sub>
+  <sub>© 2025 Adarsh Yadav. All rights reserved. Built with precision and passion.</sub>
 </div>
