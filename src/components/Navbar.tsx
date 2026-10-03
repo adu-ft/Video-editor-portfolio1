@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Menu, X, ArrowUpRight, Github, Instagram, Play } from 'lucide-react';
+import { Mail, Menu, X, Github, Instagram, Play, Globe, Film } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onContactClick: () => void;
@@ -12,6 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onProjectsClick,
   onOpenShowreel,
 }) => {
+  const { currentLanguage, setIsModalOpen, t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
@@ -63,10 +65,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   const navLinks = [
-    { label: 'About', id: 'about' },
-    { label: 'Work', id: 'projects' },
-    { label: 'Services', id: 'services' },
-    { label: 'FAQ', id: 'faq' },
+    { label: t.nav.about, id: 'about' },
+    { label: t.nav.work, id: 'projects' },
+    { label: t.nav.services, id: 'services' },
+    { label: t.nav.faq, id: 'faq' },
   ];
 
   return (
@@ -77,59 +79,63 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Floating Capsule Bar */}
         <div
-          className={`pointer-events-auto w-full flex items-center justify-between px-3.5 sm:px-5 py-2.5 rounded-full transition-all duration-300 ${
+          className={`pointer-events-auto w-full flex items-center justify-between px-3.5 sm:px-5 py-2 rounded-full transition-all duration-300 ${
             isScrolled
               ? 'bg-[#0b0b0e]/90 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/80'
               : 'bg-[#111114]/75 backdrop-blur-lg border border-white/10 shadow-lg'
           }`}
         >
-          {/* Left Brand / Identity */}
-          <button
-            onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              setActiveSection('');
-            }}
-            className="flex items-center gap-2.5 group cursor-pointer text-left focus:outline-none"
-            aria-label="Scroll to top"
-          >
-            {/* Monogram Badge */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF4625] to-[#cc2b0e] flex items-center justify-center text-white font-['Syne',sans-serif] font-black text-xs shadow-md group-hover:scale-105 transition-transform">
-              AY
+          {/* Left: Navigation Links (Desktop) & Top anchor (Mobile) */}
+          <div className="flex items-center gap-1.5">
+            {/* Desktop Horizontal Navigation Links */}
+            <div className="hidden md:flex items-center gap-1 bg-black/40 border border-white/5 px-2 py-1 rounded-full">
+              {navLinks.map((link) => {
+                const isActive = activeSection === link.id;
+                return (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollTo(link.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-white/15 text-white shadow-sm font-semibold'
+                        : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {link.label}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex flex-col">
-              <span className="font-['Syne',sans-serif] text-sm font-bold text-white tracking-tight group-hover:text-[#FF4625] transition-colors leading-none">
-                Adarsh Yadav
-              </span>
-              <span className="text-[10px] text-neutral-400 font-medium tracking-wide flex items-center gap-1.5 pt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Video Editor
-              </span>
-            </div>
-          </button>
-
-          {/* Center Horizontal Navigation Links (Desktop) */}
-          <div className="hidden md:flex items-center gap-1 bg-black/40 border border-white/5 px-2 py-1 rounded-full">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => scrollTo(link.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'bg-white/15 text-white shadow-sm font-semibold'
-                      : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {link.label}
-                </button>
-              );
-            })}
+            {/* Mobile Home / Top Icon */}
+            <button
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setActiveSection('');
+              }}
+              aria-label="Scroll to top"
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-white/5 text-[#FF4625] hover:text-white transition-colors cursor-pointer"
+            >
+              <Film size={15} />
+            </button>
           </div>
 
           {/* Right Action Controls */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Universal Language Switcher Button (Opens 45+ language modal) */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              title={`Language: ${currentLanguage.name} (${currentLanguage.nativeName}). Click to translate into any language`}
+              aria-label="Change language"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-neutral-200 hover:text-white text-xs font-medium transition-all active:scale-95 cursor-pointer shadow-sm group"
+            >
+              <span className="text-sm leading-none">{currentLanguage.flag}</span>
+              <span className="text-[11px] font-bold tracking-wider uppercase text-neutral-300 group-hover:text-white">
+                {currentLanguage.code.split('-')[0].toUpperCase()}
+              </span>
+              <Globe size={12} className="text-[#FF4625] transition-transform duration-300 group-hover:rotate-45" />
+            </button>
+
             {/* Showreel quick button */}
             {onOpenShowreel && (
               <button
@@ -138,7 +144,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-200 text-xs font-medium transition-colors cursor-pointer"
               >
                 <Play size={12} className="text-[#FF4625] fill-[#FF4625]" />
-                <span>Showreel</span>
+                <span>{t.nav.showreel}</span>
               </button>
             )}
 
@@ -172,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="px-3.5 sm:px-4 py-1.5 rounded-full bg-[#FF4625] hover:bg-[#ff5738] active:scale-95 text-white text-xs font-medium flex items-center gap-1.5 shadow-md shadow-[#FF4625]/25 transition-all cursor-pointer"
             >
               <Mail size={13} />
-              <span>Let's Talk</span>
+              <span>{t.nav.letsTalk}</span>
             </button>
 
             {/* Mobile Hamburger Menu Toggle */}
@@ -189,6 +195,25 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Mobile Dropdown Menu Drawer */}
         {mobileMenuOpen && (
           <div className="pointer-events-auto absolute top-full left-4 right-4 mt-2 bg-[#121216]/95 backdrop-blur-2xl border border-white/15 rounded-2xl p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200 md:hidden">
+            {/* Mobile Universal Language Switcher Row */}
+            <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10 px-1">
+              <span className="text-xs text-neutral-400 flex items-center gap-1.5 font-medium">
+                <Globe size={13} className="text-[#FF4625]" />
+                <span>Language</span>
+              </span>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/15 transition-all cursor-pointer"
+              >
+                <span>{currentLanguage.flag}</span>
+                <span>{currentLanguage.name}</span>
+                <span className="text-[10px] text-[#FF4625] font-bold">Change</span>
+              </button>
+            </div>
+
             <div className="flex flex-col gap-1 pb-3 mb-3 border-b border-white/10">
               {navLinks.map((link) => {
                 const isActive = activeSection === link.id;

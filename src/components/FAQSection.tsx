@@ -1,36 +1,66 @@
 import React, { useState } from 'react';
 import { Plus, X, HelpCircle, Monitor } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const FAQSection: React.FC = () => {
+  const { language, t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0); // First item opened by default as in screenshot
 
-  const faqs = [
-    {
-      question: 'What kind of videos do you edit?',
-      answer:
-        'I specialize in editing YouTube videos, social media reels, promotional content, interviews, vlogs, and short films. If you have a specific style or requirement, feel free to ask!',
-    },
-    {
-      question: 'What software do you use for editing?',
-      answer:
-        'I primarily utilize DaVinci Resolve Studio for high-end color grading and finishing, Adobe Premiere Pro for agile commercial pacing, and After Effects & Blender for custom 3D animations and visual effects.',
-    },
-    {
-      question: 'How long will it take to complete a video?',
-      answer:
-        'Turnaround time depends on the scope and complexity. Social media reels and shorts are typically delivered within 24 to 48 hours, while multi-camera corporate or YouTube projects take approximately 3 to 5 business days.',
-    },
-    {
-      question: 'How do you deliver the final video?',
-      answer:
-        'Deliverables are provided via secure Frame.io links or private cloud drive folders in full 4K UHD Master ProRes 422 HQ and web-optimized H.264/H.265 formats, complete with subtitle SRT tracks.',
-    },
-    {
-      question: 'Can I request revisions?',
-      answer:
-        'Yes, absolutely. Every project comes with 2 to 3 revision passes included to fine-tune sound design, pacing, and color balance so the final cut exceeds your expectations.',
-    },
-  ];
+  const faqs = language === 'es'
+    ? [
+        {
+          question: '¿Qué tipo de videos editas?',
+          answer:
+            'Me especializo en videos para YouTube, reels de redes sociales, contenido promocional, entrevistas, vlogs y cortometrajes cinematográficos. ¡Si tienes un estilo específico, no dudes en consultarlo!',
+        },
+        {
+          question: '¿Qué software utilizas para editar?',
+          answer:
+            'Utilizo principalmente DaVinci Resolve Studio para gradación de color y acabado de alta gama, Adobe Premiere Pro para cortes comerciales dinámicos, y After Effects & Blender para animaciones y efectos 3D.',
+        },
+        {
+          question: '¿Cuánto tiempo toma completar un video?',
+          answer:
+            'El tiempo de entrega depende del alcance. Los reels y shorts para redes sociales se entregan típicamente en 24 a 48 horas, mientras que producciones de YouTube o comerciales toman de 3 a 5 días hábiles.',
+        },
+        {
+          question: '¿Cómo entregas el video final?',
+          answer:
+            'Los entregables se proporcionan a través de enlaces seguros de Frame.io o carpetas en la nube en calidad Master 4K ProRes 422 HQ y versiones optimizadas para web en H.264/H.265 con subtítulos.',
+        },
+        {
+          question: '¿Puedo solicitar revisiones?',
+          answer:
+            'Sí, por supuesto. Cada proyecto incluye de 2 a 3 rondas de revisiones para afinar diseño sonoro, ritmo y balance de color hasta que el corte final supere tus expectativas.',
+        },
+      ]
+    : [
+        {
+          question: 'What kind of videos do you edit?',
+          answer:
+            'I specialize in editing YouTube videos, social media reels, promotional content, interviews, vlogs, and short films. If you have a specific style or requirement, feel free to ask!',
+        },
+        {
+          question: 'What software do you use for editing?',
+          answer:
+            'I primarily utilize DaVinci Resolve Studio for high-end color grading and finishing, Adobe Premiere Pro for agile commercial pacing, and After Effects & Blender for custom 3D animations and visual effects.',
+        },
+        {
+          question: 'How long will it take to complete a video?',
+          answer:
+            'Turnaround time depends on the scope and complexity. Social media reels and shorts are typically delivered within 24 to 48 hours, while multi-camera corporate or YouTube projects take approximately 3 to 5 business days.',
+        },
+        {
+          question: 'How do you deliver the final video?',
+          answer:
+            'Deliverables are provided via secure Frame.io links or private cloud drive folders in full 4K UHD Master ProRes 422 HQ and web-optimized H.264/H.265 formats, complete with subtitle SRT tracks.',
+        },
+        {
+          question: 'Can I request revisions?',
+          answer:
+            'Yes, absolutely. Every project comes with 2 to 3 revision passes included to fine-tune sound design, pacing, and color balance so the final cut exceeds your expectations.',
+        },
+      ];
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -77,15 +107,15 @@ export const FAQSection: React.FC = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-[#FF4625] flex items-center justify-center">
                 <span className="w-1 h-1 rounded-full bg-white" />
               </span>
-              <span className="text-neutral-300">Frequently Asking Questions</span>
+              <span className="text-neutral-300">{t.faq.tag}</span>
             </div>
 
             <h2 className="font-['Syne',sans-serif] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-3">
-              FAQ
+              {t.faq.title}
             </h2>
 
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-              Everything you need to know before we start editing magic together.
+              {t.faq.subtitle}
             </p>
           </div>
 

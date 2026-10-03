@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Instagram, Laptop, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ServicesSectionProps {
   onSelectService: (serviceName: string) => void;
 }
 
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectService }) => {
+  const { language, t } = useLanguage();
   const [isInView, setIsInView] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -75,15 +77,15 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
       >
         <div className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">
           <span className="w-2 h-2 rounded-full bg-[#FF4625]" />
-          <span>Pro Services</span>
+          <span>{t.services.tag}</span>
         </div>
 
         <h2 className="font-['Syne',sans-serif] text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
-          Our Best Services
+          {t.services.title}
         </h2>
 
         <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-          From raw clips to final video, I bring your vision to life with precision and creativity
+          {t.services.subtitle}
         </p>
       </div>
 

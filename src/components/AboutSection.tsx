@@ -7,6 +7,7 @@ import {
   Film,
 } from 'lucide-react';
 import { TextReveal } from './TextReveal';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AboutSectionProps {
   onContactClick: () => void;
@@ -17,6 +18,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   onContactClick,
   onPlayShowreel,
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
@@ -152,7 +154,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               <span className="w-4 h-4 rounded-full border border-[#FF3B1D] text-[#FF3B1D] flex items-center justify-center">
                 <Compass size={11} className="rotate-45" />
               </span>
-              <span className="font-semibold text-neutral-700">Hey, Just An Intro</span>
+              <span className="font-semibold text-neutral-700">{t.about.tag}</span>
             </div>
 
             {/* "About me" in glowing coral-red with cinematic typography reveal */}
@@ -165,7 +167,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 transitionDelay: '150ms',
               }}
             >
-              About me
+              {t.about.title}
             </h2>
           </div>
 
@@ -173,7 +175,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
           <div className="lg:col-span-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             <div className="max-w-xl">
               <TextReveal
-                text="Transforming raw footage into high-impact cinematic edits, dynamic pacing, and visual storytelling crafted to capture attention."
+                key={t.about.desc}
+                text={t.about.desc}
                 className="text-sm sm:text-[15px] font-normal leading-relaxed text-neutral-600 tracking-normal"
                 initialDelay={200}
                 staggerDelay={16}
@@ -189,7 +192,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 transitionDelay: '350ms',
               }}
             >
-              Get in touch
+              {t.about.getInTouch}
             </button>
           </div>
         </div>
@@ -279,7 +282,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                   className="px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black border border-white/20 text-white text-xs font-medium backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95 hover:scale-105"
                 >
                   <X size={14} />
-                  <span>Exit Video</span>
+                  <span>{t.about.exitVideo}</span>
                 </button>
               </div>
             </div>

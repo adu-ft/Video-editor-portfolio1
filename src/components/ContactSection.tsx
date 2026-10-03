@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Sparkles, CheckCircle2, Send, Loader2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ContactSectionProps {
   initialService?: string;
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }) => {
+  const { language, t } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [details, setDetails] = useState(
@@ -41,15 +43,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
               <span className="w-2.5 h-2.5 rounded-full bg-[#FF4625] flex items-center justify-center">
                 <span className="w-1 h-1 rounded-full bg-white" />
               </span>
-              <span className="text-neutral-300">Let's Work Together</span>
+              <span className="text-neutral-300">{t.contact.tag}</span>
             </div>
 
             <h2 className="font-['Syne',sans-serif] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
-              Let’s collaborate on your next video project.
+              {t.contact.title}
             </h2>
 
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8">
-              Enter your details below and I’ll get back to you as soon as possible.
+              {t.contact.subtitle}
             </p>
           </div>
 
@@ -57,11 +59,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
           <div className="space-y-3 pt-4 border-t border-white/5">
             <div className="flex items-center gap-3 text-sm text-neutral-300">
               <span className="text-[#FF4625] font-bold">✦</span>
-              <span>24/7 Full Time Support</span>
+              <span>{language === 'es' ? 'Soporte 24/7 a tiempo completo' : '24/7 Full Time Support'}</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-neutral-300">
               <span className="text-[#FF4625] font-bold">✦</span>
-              <span>Available Worldwide</span>
+              <span>{language === 'es' ? 'Disponible en todo el mundo' : 'Available Worldwide'}</span>
             </div>
           </div>
         </div>
@@ -74,10 +76,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
                 <CheckCircle2 size={32} />
               </div>
               <h3 className="font-['Syne',sans-serif] text-2xl font-bold text-white mb-2">
-                Message Sent!
+                {t.contact.successTitle}
               </h3>
               <p className="text-neutral-400 text-sm mb-6">
-                Thank you, <span className="text-white font-medium">{name}</span>. I've received your request and will reply to <span className="text-white font-medium">{email}</span> within 24 hours.
+                {language === 'es' ? (
+                  <>¡Gracias, <span className="text-white font-medium">{name}</span>! He recibido tu solicitud y responderé a <span className="text-white font-medium">{email}</span> en menos de 24 horas.</>
+                ) : (
+                  <>Thank you, <span className="text-white font-medium">{name}</span>. I've received your request and will reply to <span className="text-white font-medium">{email}</span> within 24 hours.</>
+                )}
               </p>
               <button
                 onClick={() => {
@@ -88,7 +94,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
                 }}
                 className="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors"
               >
-                Send Another Inquiry
+                {language === 'es' ? 'Enviar otra consulta' : 'Send Another Inquiry'}
               </button>
             </div>
           ) : (
@@ -102,7 +108,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
               <div>
                 <input
                   type="text"
-                  placeholder="Name"
+                  placeholder={t.contact.name}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#FF4625] transition-colors"
@@ -113,7 +119,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
               <div>
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder={t.contact.email}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#FF4625] transition-colors"
@@ -124,7 +130,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
               <div>
                 <textarea
                   rows={4}
-                  placeholder="Write more details"
+                  placeholder={t.contact.message}
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
                   className="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#FF4625] transition-colors resize-none"
@@ -139,10 +145,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService }
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    <span>Sending...</span>
+                    <span>{language === 'es' ? 'Enviando...' : 'Sending...'}</span>
                   </>
                 ) : (
-                  <span>Submit</span>
+                  <span>{t.contact.send}</span>
                 )}
               </button>
             </form>

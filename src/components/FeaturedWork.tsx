@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Play } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface ProjectItem {
   id: string;
@@ -66,9 +67,18 @@ export const PROJECTS: ProjectItem[] = [
 const CATEGORIES = ['All', 'VFX', 'Corporate Video', 'Commercial', 'Shorts & Reels'] as const;
 
 export const FeaturedWork: React.FC<FeaturedWorkProps> = ({ onSelectProject }) => {
+  const { language, t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  const getCategoryLabel = (cat: string) => {
+    if (cat === 'All') return t.work.all;
+    if (cat === 'Commercial') return t.work.commercial;
+    if (cat === 'Shorts & Reels') return t.work.shorts;
+    if (cat === 'Corporate Video') return language === 'es' ? 'Corporativo' : 'Corporate Video';
+    return cat;
+  };
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -114,15 +124,15 @@ export const FeaturedWork: React.FC<FeaturedWorkProps> = ({ onSelectProject }) =
       >
         <div className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">
           <span className="w-2 h-2 rounded-full bg-[#FF4625] animate-pulse" />
-          <span>My Best Projects</span>
+          <span>{t.work.tag}</span>
         </div>
 
         <h2 className="font-['Syne',sans-serif] text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
-          Featured Work
+          {t.work.title}
         </h2>
 
         <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-          Showcasing high-quality edits that bring ideas to life through visuals and seamless storytelling.
+          {t.work.subtitle}
         </p>
       </div>
 
@@ -147,7 +157,7 @@ export const FeaturedWork: React.FC<FeaturedWorkProps> = ({ onSelectProject }) =
                   : 'text-neutral-400 hover:text-white bg-transparent hover:bg-neutral-900/60'
               }`}
             >
-              {cat}
+              {getCategoryLabel(cat)}
             </button>
           );
         })}

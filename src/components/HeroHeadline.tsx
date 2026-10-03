@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, LayoutGrid, Play } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HeroHeadlineProps {
   onContactClick: () => void;
@@ -12,6 +13,7 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
   onViewProjectsClick,
   onPreviewReelClick,
 }) => {
+  const { language, t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
           filter: isLoaded ? 'blur(0px)' : 'blur(8px)',
         }}
       >
-        <span>Transform </span>
+        <span>{language === 'es' ? 'Transforma ' : 'Transform '}</span>
 
         {/* Inline Capsule 1: Raw clip image provided by user */}
         <span
@@ -50,9 +52,9 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
           </div>
         </span>
 
-        <span>your raw</span>
+        <span>{language === 'es' ? 'tus clips' : 'your raw'}</span>
         <br className="hidden sm:inline" />
-        <span className="inline"> clips into cinematic </span>
+        <span className="inline">{language === 'es' ? ' en video cinematográfico ' : ' clips into cinematic '}</span>
 
         {/* Inline Capsule 2: Cinematic video image provided by user */}
         <span
@@ -72,7 +74,7 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
           </div>
         </span>
 
-        <span>video</span>
+        <span>{language === 'es' ? '' : 'video'}</span>
       </h1>
 
       {/* Action Buttons with Staggered Entrance */}
@@ -89,7 +91,7 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
           className="group px-6 py-3 rounded-full bg-[#FF4625] hover:bg-[#ff5738] active:scale-95 text-white font-medium text-sm sm:text-base flex items-center gap-2 shadow-lg shadow-[#FF4625]/25 transition-all duration-200 cursor-pointer"
         >
           <Mail size={16} />
-          <span>Get in touch</span>
+          <span>{t.about.getInTouch}</span>
         </button>
 
         <button
@@ -97,14 +99,14 @@ export const HeroHeadline: React.FC<HeroHeadlineProps> = ({
           className="group px-6 py-3 rounded-full bg-white hover:bg-neutral-100 active:scale-95 text-neutral-900 font-medium text-sm sm:text-base flex items-center gap-2 shadow-md transition-all duration-200 cursor-pointer"
         >
           <LayoutGrid size={16} className="text-neutral-800" />
-          <span>View Projects</span>
+          <span>{t.hero.viewWork}</span>
         </button>
       </div>
 
       {/* Partner Recognition Continuous Moving Marquee */}
       <div className="w-full pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6 opacity-85 hover:opacity-100 transition-opacity">
         <span className="text-neutral-400 text-xs sm:text-sm font-normal shrink-0">
-          Work with these international partners:
+          {language === 'es' ? 'Colaborando con socios internacionales:' : 'Work with these international partners:'}
         </span>
 
         {/* Continuous Smooth Infinite Marquee Carousel */}

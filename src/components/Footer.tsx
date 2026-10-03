@@ -1,5 +1,6 @@
 import React from 'react';
 import { Instagram, Github } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
   onAboutClick: () => void;
@@ -12,6 +13,8 @@ export const Footer: React.FC<FooterProps> = ({
   onContactClick,
   onProjectsClick,
 }) => {
+  const { language, t } = useLanguage();
+
   return (
     <footer className="relative w-full border-t border-white/5 pt-20 pb-16 px-4 sm:px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
@@ -26,25 +29,25 @@ export const Footer: React.FC<FooterProps> = ({
             onClick={onAboutClick}
             className="hover:text-white transition-colors cursor-pointer"
           >
-            About Me
+            {t.nav.about}
           </button>
           <button
             onClick={onContactClick}
             className="hover:text-white transition-colors cursor-pointer"
           >
-            Contact Me
+            {t.nav.contact}
           </button>
           <button
             onClick={onProjectsClick}
             className="hover:text-white transition-colors cursor-pointer"
           >
-            Projects
+            {t.nav.work}
           </button>
           <button
             onClick={onContactClick}
             className="hover:text-white transition-colors cursor-pointer"
           >
-            How to edit
+            {t.nav.services}
           </button>
         </div>
 
@@ -76,11 +79,11 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="w-full pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400 font-normal">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            <span>Available for worldwide client projects</span>
+            <span>{language === 'es' ? 'Disponible para proyectos globales' : 'Available for worldwide client projects'}</span>
           </div>
 
           <div className="flex items-center gap-1.5 text-neutral-300">
-            <span>Developed by</span>
+            <span>{language === 'es' ? 'Desarrollado por' : 'Developed by'}</span>
             <a
               href="https://github.com/adrix-ft"
               target="_blank"
@@ -92,7 +95,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="text-neutral-500">(@adrix-ft)</span>
           </div>
 
-          <div>© 2025 Adarsh Yadav. All rights reserved.</div>
+          <div>© 2025 Adarsh Yadav. {t.footer.rights}</div>
         </div>
       </div>
     </footer>
