@@ -133,6 +133,15 @@ npm run dev
 npm run build
 </code></pre>
 
+<h3>Deploying to Vercel</h3>
+<ol>
+  <li>Import the repository into <a href="https://vercel.com">Vercel</a>.</li>
+  <li>Framework Preset: <strong>Vite</strong>.</li>
+  <li>Build Command: <code>npm run build</code></li>
+  <li>Output Directory: <code>dist</code></li>
+  <li>Install Command: <code>npm install</code> (configured via <code>.npmrc</code> and <code>vercel.json</code>).</li>
+</ol>
+
 <hr />
 
 <h2>👤 Creator & Credits</h2>
