@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Compass, Play, Sparkles } from 'lucide-react';
+import {
+  Compass,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize2,
+  Sparkles,
+  X,
+  Film,
+} from 'lucide-react';
 import { TextReveal } from './TextReveal';
 
 interface AboutSectionProps {
@@ -13,7 +23,114 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+
+  // Custom Video Player States (100% Zero-Branding Experience)
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [isPlayerPaused, setIsPlayerPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [showControls, setShowControls] = useState(true);
+
   const sectionRef = useRef<HTMLDivElement>(null);
+  const videoCardRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Send YouTube API postMessage commands to controlled hidden iframe
+  const sendIframeCommand = (func: string, args: (string | number | boolean)[] = []) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func, args }),
+        '*'
+      );
+    }
+  };
+
+  // Video progress timer simulation (Total duration = 105s)
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isPlayingVideo && !isPlayerPaused) {
+      timer = setInterval(() => {
+        setVideoProgress((prev) => (prev >= 105 ? 0 : prev + 1));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isPlayingVideo, isPlayerPaused]);
+
+  // Auto-hide controls when playing
+  const resetControlsTimeout = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    if (isPlayingVideo && !isPlayerPaused) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 2500);
+    }
+  };
+
+  const handleTogglePlayPause = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isPlayerPaused) {
+      sendIframeCommand('playVideo');
+      setIsPlayerPaused(false);
+    } else {
+      sendIframeCommand('pauseVideo');
+      setIsPlayerPaused(true);
+    }
+    resetControlsTimeout();
+  };
+
+  const handleToggleMute = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isMuted) {
+      sendIframeCommand('unMute');
+      setIsMuted(false);
+    } else {
+      sendIframeCommand('mute');
+      setIsMuted(true);
+    }
+    resetControlsTimeout();
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const newPercent = Math.max(0, Math.min(1, clickX / rect.width));
+    const newTime = Math.floor(newPercent * 105);
+    setVideoProgress(newTime);
+    sendIframeCommand('seekTo', [newTime, true]);
+    resetControlsTimeout();
+  };
+
+  const handleFullscreen = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!videoCardRef.current) return;
+    if (!document.fullscreenElement) {
+      videoCardRef.current.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!videoCardRef.current) return;
+    const rect = videoCardRef.current.getBoundingClientRect();
+    setCursorPos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+    if (isPlayingVideo) {
+      resetControlsTimeout();
+    }
+  };
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -105,161 +222,228 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
           </div>
         </div>
 
-        {/* Video / 3D Isometric Showcase Card (Cinematic scale and perspective entrance) */}
+        {/* Interactive Video Showcase Card with Custom Play Cursor & YouTube Integration */}
         <div
-          onClick={onPlayShowreel}
-          onMouseEnter={() => setIsHovered(true)}
+          ref={videoCardRef}
+          onClick={() => {
+            if (!isPlayingVideo) {
+              setIsPlayingVideo(true);
+            }
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseEnter={(e) => {
+            setIsHovered(true);
+            if (videoCardRef.current) {
+              const rect = videoCardRef.current.getBoundingClientRect();
+              setCursorPos({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top,
+              });
+            }
+          }}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative w-full rounded-[24px] sm:rounded-[32px] bg-[#0c0c0c] overflow-hidden aspect-[16/10] sm:aspect-[16/9] md:aspect-[2.1/1] flex items-center justify-center cursor-pointer group shadow-2xl transition-all duration-1000 mb-14 sm:mb-16 select-none"
+          className={`relative w-full rounded-[24px] sm:rounded-[32px] bg-[#0c0c0c] overflow-hidden aspect-[16/10] sm:aspect-[16/9] md:aspect-[2.1/1] flex items-center justify-center shadow-2xl transition-all duration-1000 mb-14 sm:mb-16 select-none ${
+            !isPlayingVideo ? 'cursor-none group' : ''
+          }`}
           style={{
             opacity: isInView ? 1 : 0,
             transform: isInView ? 'translate3d(0, 0, 0) scale(1)' : 'translate3d(0, 40px, 0) scale(0.96)',
             transitionDelay: '400ms',
           }}
         >
-          {/* Subtle warm olive / bronze radial ambient backlight */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(140,115,70,0.18)_0%,rgba(20,20,20,0)_65%)]" />
+          {isPlayingVideo ? (
+            /* 100% Zero-Branding Scaled Video Player (Hides all YouTube UI, titles, avatars, watermarks) */
+            <div className="relative w-full h-full bg-black overflow-hidden select-none">
+              {/* Scaled & Cropped Frame: Crops out top title/avatar bar & bottom watermark */}
+              <div className="absolute w-[138%] h-[138%] -top-[19%] -left-[19%] pointer-events-none select-none">
+                <iframe
+                  ref={iframeRef}
+                  src="https://www.youtube.com/embed/6kYRUsXtS4s?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&loop=1&playlist=6kYRUsXtS4s"
+                  title="Adarsh Yadav — Video Editor Showreel"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  className="w-full h-full object-cover border-0"
+                />
+              </div>
 
-          {/* Background Repeating Outline Wireframe Typography: $100,000 */}
-          <div className="absolute inset-0 flex flex-col justify-around py-4 opacity-40 pointer-events-none overflow-hidden select-none">
-            {/* Top row */}
-            <div className="flex justify-between items-center px-4">
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1px_rgba(180,150,100,0.35)]">
-                $100,
-              </span>
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1px_rgba(180,150,100,0.35)]">
-                000
-              </span>
-            </div>
-
-            {/* Middle row */}
-            <div className="flex justify-between items-center px-4 -my-4 sm:-my-6">
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1.2px_rgba(200,165,115,0.4)]">
-                $100,
-              </span>
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1.2px_rgba(200,165,115,0.4)]">
-                000
-              </span>
-            </div>
-
-            {/* Bottom row */}
-            <div className="flex justify-between items-center px-4">
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1px_rgba(180,150,100,0.35)]">
-                $100,
-              </span>
-              <span className="font-['Syne',sans-serif] text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-transparent [-webkit-text-stroke:1px_rgba(180,150,100,0.35)]">
-                000
-              </span>
-            </div>
-          </div>
-
-          {/* 3D Dark Metallic Isometric Cube Representation */}
-          <div className="relative z-10 w-64 sm:w-80 md:w-[420px] h-64 sm:h-80 md:h-[420px] flex items-center justify-center transition-transform duration-700 ease-out group-hover:scale-[1.04] group-hover:-translate-y-1">
-            <svg
-              viewBox="0 0 500 500"
-              className="w-full h-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                {/* Top face metallic gradient */}
-                <linearGradient id="topFaceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#45484d" />
-                  <stop offset="50%" stopColor="#2a2c2f" />
-                  <stop offset="100%" stopColor="#1e2023" />
-                </linearGradient>
-
-                {/* Left face gradient */}
-                <linearGradient id="leftFaceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#1c1d20" />
-                  <stop offset="70%" stopColor="#151618" />
-                  <stop offset="100%" stopColor="#0e0f11" />
-                </linearGradient>
-
-                {/* Right face gradient */}
-                <linearGradient id="rightFaceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#25272a" />
-                  <stop offset="50%" stopColor="#1b1c1e" />
-                  <stop offset="100%" stopColor="#111214" />
-                </linearGradient>
-
-                {/* Framer Logo Metallic Shading */}
-                <linearGradient id="framerLight" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#9ca3af" stopOpacity="0.75" />
-                </linearGradient>
-                <linearGradient id="framerMid" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#e5e7eb" stopOpacity="0.7" />
-                  <stop offset="100%" stopColor="#6b7280" stopOpacity="0.6" />
-                </linearGradient>
-                <linearGradient id="framerDark" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#d1d5db" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#4b5563" stopOpacity="0.6" />
-                </linearGradient>
-              </defs>
-
-              {/* Cube Geometry */}
-              {/* 1. Top Face */}
-              <polygon
-                points="250,70 415,165 250,260 85,165"
-                fill="url(#topFaceGrad)"
-                stroke="#5a5e66"
-                strokeWidth="1.5"
-              />
-              {/* Highlight along top front apex */}
-              <line x1="85" y1="165" x2="250" y2="70" stroke="#8b919a" strokeWidth="2" opacity="0.8" />
-              <line x1="250" y1="70" x2="415" y2="165" stroke="#6b7280" strokeWidth="1.5" opacity="0.6" />
-
-              {/* 2. Left Face */}
-              <polygon
-                points="85,165 250,260 250,435 85,340"
-                fill="url(#leftFaceGrad)"
-                stroke="#33373d"
-                strokeWidth="1.5"
+              {/* Interactive Click Layer to toggle Play / Pause */}
+              <div
+                onClick={handleTogglePlayPause}
+                className="absolute inset-0 z-10 cursor-pointer"
+                title="Click to play / pause video"
               />
 
-              {/* Text on Left Face: "Framer Award 2024 / Best Designer" (matching screenshot) */}
-              <g transform="translate(130, 270) skewY(30) scale(0.85)">
-                <text fill="#ffffff" fillOpacity="0.8" fontSize="12" fontWeight="500" letterSpacing="0.5">
-                  Framer Award 2024
-                </text>
-                <text fill="#a1a1aa" fontSize="10" fontWeight="400" y="16" letterSpacing="0.5">
-                  Best Designer
-                </text>
-              </g>
+              {/* Pause Flash Indicator */}
+              {isPlayerPaused && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-200">
+                    <Play size={30} className="ml-1 fill-white" />
+                  </div>
+                </div>
+              )}
 
-              {/* 3. Right Face */}
-              <polygon
-                points="250,260 415,165 415,340 250,435"
-                fill="url(#rightFaceGrad)"
-                stroke="#3b3f46"
-                strokeWidth="1.5"
+              {/* Top Bar with Showreel Title and Exit Button */}
+              <div
+                className={`absolute top-0 inset-x-0 z-30 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${
+                  showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                  <span className="w-2 h-2 rounded-full bg-[#FF4625] animate-ping" />
+                  <span>Adarsh Yadav — 2025 Showreel</span>
+                </div>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsPlayingVideo(false);
+                    setIsPlayerPaused(false);
+                  }}
+                  aria-label="Exit video player"
+                  className="px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black border border-white/20 text-white text-xs font-medium backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer shadow-lg hover:scale-105"
+                >
+                  <X size={13} />
+                  <span>Exit Video</span>
+                </button>
+              </div>
+
+              {/* Sleek Cinematic Custom Controls Bar (Fade-in on hover) */}
+              <div
+                className={`absolute inset-x-0 bottom-0 z-30 p-4 sm:p-6 bg-gradient-to-t from-black via-black/85 to-transparent transition-opacity duration-300 flex flex-col gap-2.5 ${
+                  showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                }`}
+              >
+                {/* Scrubber Progress Bar */}
+                <div
+                  onClick={handleSeek}
+                  className="w-full h-1.5 hover:h-2.5 bg-white/20 rounded-full overflow-hidden cursor-pointer transition-all relative group/scrub"
+                  title="Click to seek"
+                >
+                  <div
+                    className="h-full bg-[#FF4625] rounded-full relative transition-all duration-150"
+                    style={{ width: `${(videoProgress / 105) * 100}%` }}
+                  >
+                    <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover/scrub:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+
+                {/* Controls Row */}
+                <div className="flex items-center justify-between text-white text-xs pt-1">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleTogglePlayPause}
+                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                      title={isPlayerPaused ? 'Play' : 'Pause'}
+                    >
+                      {isPlayerPaused ? (
+                        <Play size={15} className="ml-0.5 fill-current" />
+                      ) : (
+                        <Pause size={15} />
+                      )}
+                    </button>
+
+                    <button
+                      onClick={handleToggleMute}
+                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                      title={isMuted ? 'Unmute' : 'Mute'}
+                    >
+                      {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                    </button>
+
+                    <span className="font-mono text-[11px] text-neutral-300 tracking-wider">
+                      {formatTime(videoProgress)} / 01:45
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="bg-white/10 px-2.5 py-0.5 rounded text-[10px] font-mono text-white/90">
+                      4K 60FPS
+                    </span>
+
+                    <button
+                      onClick={handleFullscreen}
+                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                      title="Fullscreen"
+                    >
+                      <Maximize2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Poster & Ambient Showcase */
+            <>
+              {/* Poster Thumbnail Image with smooth hover zoom */}
+              <img
+                src="https://img.youtube.com/vi/6kYRUsXtS4s/maxresdefault.jpg"
+                alt="Adarsh Yadav Video Showreel"
+                className="absolute inset-0 w-full h-full object-cover object-center filter brightness-90 contrast-[1.08] transition-transform duration-700 ease-out group-hover:scale-105"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src =
+                    'https://img.youtube.com/vi/6kYRUsXtS4s/hqdefault.jpg';
+                }}
               />
 
-              {/* Center vertical edge shine */}
-              <line x1="250" y1="260" x2="250" y2="435" stroke="#71717a" strokeWidth="2" opacity="0.5" />
+              {/* Cinematic Vignette Overlays */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/60 pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.75)_100%)] pointer-events-none" />
 
-              {/* 4. Framer 3D Ribbon Logo on the Right Face */}
-              <g transform="translate(290, 230) skewY(-30) scale(1.45)">
-                {/* Top square of Framer logo */}
-                <path d="M0 0 H36 V18 H18 V36 H0 Z" fill="url(#framerLight)" />
-                {/* Middle connector */}
-                <path d="M0 18 H18 V36 H0 Z" fill="url(#framerMid)" />
-                {/* Bottom triangle */}
-                <path d="M0 36 H18 L0 54 Z" fill="url(#framerDark)" />
-              </g>
+              {/* Top Bar Indicators */}
+              <div className="absolute top-4 sm:top-6 inset-x-4 sm:inset-x-6 z-20 flex items-center justify-between pointer-events-none">
+                <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[11px] font-medium">
+                  <span className="w-2 h-2 rounded-full bg-[#FF4625] animate-ping" />
+                  <span>4K UHD · 23.976 FPS</span>
+                </div>
+                <div className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-neutral-300 text-[11px] font-mono">
+                  REC ● 01:45
+                </div>
+              </div>
 
-              {/* Ambient bottom shadow on surface */}
-              <ellipse cx="250" cy="445" rx="140" ry="25" fill="#000000" opacity="0.75" />
-            </svg>
-          </div>
+              {/* Bottom Bar Info */}
+              <div className="absolute bottom-4 sm:bottom-6 inset-x-4 sm:inset-x-6 z-20 flex items-end justify-between pointer-events-none">
+                <div>
+                  <span className="text-[#FF4625] text-xs font-bold tracking-widest uppercase">
+                    Official Showreel
+                  </span>
+                  <h3 className="font-['Syne',sans-serif] text-lg sm:text-2xl font-bold text-white tracking-tight">
+                    Adarsh Yadav — Cinematic Reel
+                  </h3>
+                </div>
 
-          {/* Centered Translucent White Play Button (Exactly as in screenshot) */}
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-white/90 backdrop-blur-sm text-neutral-950 flex items-center justify-center shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:bg-[#FF3B1D] group-hover:text-white">
-              <Play size={22} className="ml-1 fill-current" />
-            </div>
-          </div>
+                <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-400 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                  <Film size={12} className="text-[#FF4625]" />
+                  <span>Click to Play</span>
+                </div>
+              </div>
+
+              {/* Static Center Button for Mobile Touch Devices */}
+              <div className="sm:hidden absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                <div className="w-14 h-14 rounded-full bg-[#FF4625] text-white flex items-center justify-center shadow-2xl shadow-[#FF4625]/60 animate-pulse">
+                  <Play size={24} className="ml-1 fill-white" />
+                </div>
+              </div>
+
+              {/* Custom Magnetic Follower Play Button Cursor (Desktop) */}
+              {isHovered && (
+                <div
+                  className="pointer-events-none absolute z-30 transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 ease-out hidden sm:flex flex-col items-center justify-center"
+                  style={{
+                    left: `${cursorPos.x}px`,
+                    top: `${cursorPos.y}px`,
+                  }}
+                >
+                  {/* Subtle Expanding Wave Ring */}
+                  <div className="absolute w-20 h-20 rounded-full bg-[#FF4625]/30 animate-ping pointer-events-none" />
+
+                  {/* Play Cursor Pill */}
+                  <div className="relative w-16 h-16 rounded-full bg-[#FF4625] text-white flex flex-col items-center justify-center shadow-2xl shadow-[#FF4625]/60 border border-white/30 backdrop-blur-md transition-transform duration-150 group-hover:scale-105 group-active:scale-90">
+                    <Play size={20} className="ml-0.5 fill-white" />
+                    <span className="text-[8px] font-black tracking-widest uppercase mt-0.5">PLAY</span>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* 2-Column Feature Highlights below Video Player with staggered scroll animation */}

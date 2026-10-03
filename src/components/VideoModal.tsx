@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Check } from 'lucide-react';
 import { ProjectItem } from './FeaturedWork';
 
@@ -17,7 +17,17 @@ export const VideoModal: React.FC<VideoModalProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(25);
+  const [progress, setProgress] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const sendIframeCommand = (func: string, args: (string | number | boolean)[] = []) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func, args }),
+        '*'
+      );
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -26,6 +36,8 @@ export const VideoModal: React.FC<VideoModalProps> = ({
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
+      setIsPlaying(true);
+      setProgress(0);
     }
     return () => {
       document.body.style.overflow = '';
@@ -39,7 +51,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({
     if (isOpen && isPlaying) {
       timer = setInterval(() => {
         setProgress((prev) => (prev >= 100 ? 0 : prev + 1));
-      }, 300);
+      }, 500);
     }
     return () => clearInterval(timer);
   }, [isOpen, isPlaying]);
@@ -71,7 +83,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -79,79 +91,196 @@ export const VideoModal: React.FC<VideoModalProps> = ({
 
         {/* Video Player Display Screen */}
         <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden group">
-          {/* Animated Video Simulation Backdrop */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-[#1a0f0a] to-[#0a141a]">
-            {/* Dynamic particle & wave graphic for video feel */}
-            <div className="absolute inset-0 opacity-40 mix-blend-screen bg-[radial-gradient(circle_at_center,#FF4625_0%,transparent_60%)]" />
-
-            <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 select-none">
-              <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-4">
-                {isPlaying ? (
-                  <Sparkles size={36} className="text-[#FF4625] animate-pulse" />
-                ) : (
-                  <Play size={36} className="text-white ml-1 fill-white" />
-                )}
+          {isShowreel ? (
+            /* 100% Zero-Branding Scaled Frame (Crops out all YouTube titles, avatars, watermarks) */
+            <div className="relative w-full h-full bg-black overflow-hidden select-none">
+              <div className="absolute w-[138%] h-[138%] -top-[19%] -left-[19%] pointer-events-none select-none">
+                <iframe
+                  ref={iframeRef}
+                  src="https://www.youtube.com/embed/6kYRUsXtS4s?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&loop=1&playlist=6kYRUsXtS4s"
+                  title="Adarsh Yadav — Video Editor Showreel"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  className="w-full h-full object-cover border-0"
+                />
               </div>
-              <div className="font-['Syne',sans-serif] text-2xl sm:text-3xl font-bold text-white tracking-wide mb-1">
-                {isPlaying ? 'NOW PLAYING' : 'PAUSED'}
-              </div>
-              <div className="text-xs text-neutral-400 max-w-md font-mono">
-                4K UHD · 23.976 FPS · Rec.709 · ProRes 422 HQ
-              </div>
-            </div>
-          </div>
 
-          {/* Scrim Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-          {/* Controls Bar at Bottom */}
-          <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 flex flex-col gap-2 bg-gradient-to-t from-black via-black/90 to-transparent">
-            {/* Scrubber Progress Bar */}
-            <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer">
+              {/* Click to play/pause transparent overlay */}
               <div
-                className="h-full bg-[#FF4625] transition-all duration-150"
-                style={{ width: `${progress}%` }}
+                onClick={() => {
+                  if (isPlaying) {
+                    sendIframeCommand('pauseVideo');
+                    setIsPlaying(false);
+                  } else {
+                    sendIframeCommand('playVideo');
+                    setIsPlaying(true);
+                  }
+                }}
+                className="absolute inset-0 z-10 cursor-pointer"
+                title="Click to toggle play / pause"
               />
-            </div>
 
-            {/* Buttons Row */}
-            <div className="flex items-center justify-between pt-1 text-white">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="p-1.5 hover:text-[#FF4625] transition-colors"
-                >
-                  {isPlaying ? <Pause size={18} /> : <Play size={18} className="fill-current" />}
-                </button>
-                <button
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="p-1.5 hover:text-[#FF4625] transition-colors"
-                >
-                  {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                </button>
-                <span className="text-xs font-mono text-neutral-400">
-                  {Math.floor((progress * 45) / 100)}s / 45s
-                </span>
-              </div>
+              {/* Pause Flash Indicator */}
+              {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div className="w-16 h-16 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-200">
+                    <Play size={28} className="ml-1 fill-white" />
+                  </div>
+                </div>
+              )}
 
-              <div className="flex items-center gap-3 text-xs text-neutral-400">
-                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-mono text-white">4K 60FPS</span>
-                <button
-                  onClick={() => {
-                    const el = document.documentElement;
-                    if (!document.fullscreenElement) {
-                      el.requestFullscreen?.().catch(() => {});
-                    } else {
-                      document.exitFullscreen?.().catch(() => {});
-                    }
+              {/* Custom Controls Bar at Bottom */}
+              <div className="absolute bottom-0 inset-x-0 z-30 p-4 sm:p-5 flex flex-col gap-2 bg-gradient-to-t from-black via-black/85 to-transparent pointer-events-auto">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    const newTime = Math.floor(percent * 105);
+                    setProgress(Math.floor(percent * 100));
+                    sendIframeCommand('seekTo', [newTime, true]);
                   }}
-                  className="p-1.5 hover:text-white transition-colors"
+                  className="w-full h-1.5 bg-white/20 hover:h-2.5 rounded-full overflow-hidden cursor-pointer transition-all"
                 >
-                  <Maximize2 size={16} />
-                </button>
+                  <div
+                    className="h-full bg-[#FF4625] transition-all duration-150"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-1 text-white">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isPlaying) {
+                          sendIframeCommand('pauseVideo');
+                          setIsPlaying(false);
+                        } else {
+                          sendIframeCommand('playVideo');
+                          setIsPlaying(true);
+                        }
+                      }}
+                      className="p-1.5 hover:text-[#FF4625] transition-colors cursor-pointer"
+                    >
+                      {isPlaying ? <Pause size={18} /> : <Play size={18} className="fill-current" />}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isMuted) {
+                          sendIframeCommand('unMute');
+                          setIsMuted(false);
+                        } else {
+                          sendIframeCommand('mute');
+                          setIsMuted(true);
+                        }
+                      }}
+                      className="p-1.5 hover:text-[#FF4625] transition-colors cursor-pointer"
+                    >
+                      {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </button>
+                    <span className="text-xs font-mono text-neutral-400">
+                      {Math.floor((progress * 105) / 100)}s / 105s
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-xs text-neutral-400">
+                    <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-mono text-white">4K 60FPS</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const el = document.documentElement;
+                        if (!document.fullscreenElement) {
+                          el.requestFullscreen?.().catch(() => {});
+                        } else {
+                          document.exitFullscreen?.().catch(() => {});
+                        }
+                      }}
+                      className="p-1.5 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <Maximize2 size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Animated Video Simulation Backdrop */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-[#1a0f0a] to-[#0a141a]">
+                {/* Dynamic particle & wave graphic for video feel */}
+                <div className="absolute inset-0 opacity-40 mix-blend-screen bg-[radial-gradient(circle_at_center,#FF4625_0%,transparent_60%)]" />
+
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 select-none">
+                  <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-4">
+                    {isPlaying ? (
+                      <Sparkles size={36} className="text-[#FF4625] animate-pulse" />
+                    ) : (
+                      <Play size={36} className="text-white ml-1 fill-white" />
+                    )}
+                  </div>
+                  <div className="font-['Syne',sans-serif] text-2xl sm:text-3xl font-bold text-white tracking-wide mb-1">
+                    {isPlaying ? 'NOW PLAYING' : 'PAUSED'}
+                  </div>
+                  <div className="text-xs text-neutral-400 max-w-md font-mono">
+                    4K UHD · 23.976 FPS · Rec.709 · ProRes 422 HQ
+                  </div>
+                </div>
+              </div>
+
+              {/* Scrim Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+
+              {/* Controls Bar at Bottom */}
+              <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 flex flex-col gap-2 bg-gradient-to-t from-black via-black/90 to-transparent">
+                {/* Scrubber Progress Bar */}
+                <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer">
+                  <div
+                    className="h-full bg-[#FF4625] transition-all duration-150"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                {/* Buttons Row */}
+                <div className="flex items-center justify-between pt-1 text-white">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="p-1.5 hover:text-[#FF4625] transition-colors"
+                    >
+                      {isPlaying ? <Pause size={18} /> : <Play size={18} className="fill-current" />}
+                    </button>
+                    <button
+                      onClick={() => setIsMuted(!isMuted)}
+                      className="p-1.5 hover:text-[#FF4625] transition-colors"
+                    >
+                      {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </button>
+                    <span className="text-xs font-mono text-neutral-400">
+                      {Math.floor((progress * 45) / 100)}s / 45s
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-xs text-neutral-400">
+                    <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-mono text-white">4K 60FPS</span>
+                    <button
+                      onClick={() => {
+                        const el = document.documentElement;
+                        if (!document.fullscreenElement) {
+                          el.requestFullscreen?.().catch(() => {});
+                        } else {
+                          document.exitFullscreen?.().catch(() => {});
+                        }
+                      }}
+                      className="p-1.5 hover:text-white transition-colors"
+                    >
+                      <Maximize2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Project Meta Information Footer */}

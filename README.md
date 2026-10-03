@@ -61,10 +61,6 @@
       <td>2x2 interactive grid filtered across VFX, Corporate Video, Commercial, and Shorts & Reels with instant video modal previews.</td>
     </tr>
     <tr>
-      <td><strong>Approach Style Pillars</strong></td>
-      <td>3-step structured creative methodology (<em>Understand the Story, Craft with Precision, Deliver with Impact</em>) with staggered reveal animations.</td>
-    </tr>
-    <tr>
       <td><strong>Animated Stats & Facts</strong></td>
       <td>Real-time cubic ease-out counting statistics (<em>13+ Projects Done, 8+ Years Experience, 10+ Recognitions, 13% Happy Clients</em>).</td>
     </tr>

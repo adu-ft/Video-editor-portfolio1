@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { Navbar } from './components/Navbar';
 import { HeaderBanner } from './components/HeaderBanner';
 import { HeroHeadline } from './components/HeroHeadline';
 import { AboutSection } from './components/AboutSection';
 import { FeaturedWork, ProjectItem } from './components/FeaturedWork';
-import { ApproachStyle } from './components/ApproachStyle';
 import { StatsSection } from './components/StatsSection';
 import { ServicesSection } from './components/ServicesSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
@@ -46,13 +46,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#080808] text-white flex flex-col selection:bg-[#FF4625] selection:text-white">
+      {/* Fixed Horizontal Navigation Bar */}
+      <Navbar
+        onContactClick={() => scrollToSection('contact')}
+        onProjectsClick={() => scrollToSection('projects')}
+        onOpenShowreel={handleOpenShowreel}
+      />
+
       {/* 1. Top Cinematic Hero Header Banner */}
-      <CinematicFadeIn direction="down" duration={800}>
-        <HeaderBanner
-          onContactClick={() => scrollToSection('contact')}
-          onProjectsClick={() => scrollToSection('projects')}
-        />
-      </CinematicFadeIn>
+      <div className="pt-16 sm:pt-20">
+        <CinematicFadeIn direction="down" duration={800}>
+          <HeaderBanner
+            onContactClick={() => scrollToSection('contact')}
+            onProjectsClick={() => scrollToSection('projects')}
+          />
+        </CinematicFadeIn>
+      </div>
 
       {/* 2. Main Hero Headline & Partner Recognition */}
       <CinematicFadeIn direction="up" delay={150} duration={850}>
@@ -76,12 +85,7 @@ export default function App() {
         <FeaturedWork onSelectProject={handleSelectProject} />
       </CinematicFadeIn>
 
-      {/* 5. Approach Style (3 Pillars) */}
-      <CinematicFadeIn direction="up" duration={750}>
-        <ApproachStyle onContactClick={() => scrollToSection('contact')} />
-      </CinematicFadeIn>
-
-      {/* 6. Stats & Facts Impact Numbers */}
+      {/* 5. Stats & Facts Impact Numbers */}
       <CinematicFadeIn direction="up" duration={750}>
         <StatsSection />
       </CinematicFadeIn>
