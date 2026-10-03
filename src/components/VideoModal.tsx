@@ -119,90 +119,14 @@ export const VideoModal: React.FC<VideoModalProps> = ({
                 title="Click to toggle play / pause"
               />
 
-              {/* Pause Flash Indicator */}
+              {/* Pause Indicator */}
               {!isPlaying && (
                 <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                  <div className="w-16 h-16 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-200">
+                  <div className="w-16 h-16 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-200">
                     <Play size={28} className="ml-1 fill-white" />
                   </div>
                 </div>
               )}
-
-              {/* Custom Controls Bar at Bottom */}
-              <div className="absolute bottom-0 inset-x-0 z-30 p-4 sm:p-5 flex flex-col gap-2 bg-gradient-to-t from-black via-black/85 to-transparent pointer-events-auto">
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                    const newTime = Math.floor(percent * 105);
-                    setProgress(Math.floor(percent * 100));
-                    sendIframeCommand('seekTo', [newTime, true]);
-                  }}
-                  className="w-full h-1.5 bg-white/20 hover:h-2.5 rounded-full overflow-hidden cursor-pointer transition-all"
-                >
-                  <div
-                    className="h-full bg-[#FF4625] transition-all duration-150"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between pt-1 text-white">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isPlaying) {
-                          sendIframeCommand('pauseVideo');
-                          setIsPlaying(false);
-                        } else {
-                          sendIframeCommand('playVideo');
-                          setIsPlaying(true);
-                        }
-                      }}
-                      className="p-1.5 hover:text-[#FF4625] transition-colors cursor-pointer"
-                    >
-                      {isPlaying ? <Pause size={18} /> : <Play size={18} className="fill-current" />}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isMuted) {
-                          sendIframeCommand('unMute');
-                          setIsMuted(false);
-                        } else {
-                          sendIframeCommand('mute');
-                          setIsMuted(true);
-                        }
-                      }}
-                      className="p-1.5 hover:text-[#FF4625] transition-colors cursor-pointer"
-                    >
-                      {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                    </button>
-                    <span className="text-xs font-mono text-neutral-400">
-                      {Math.floor((progress * 105) / 100)}s / 105s
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-xs text-neutral-400">
-                    <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-mono text-white">4K 60FPS</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const el = document.documentElement;
-                        if (!document.fullscreenElement) {
-                          el.requestFullscreen?.().catch(() => {});
-                        } else {
-                          document.exitFullscreen?.().catch(() => {});
-                        }
-                      }}
-                      className="p-1.5 hover:text-white transition-colors cursor-pointer"
-                    >
-                      <Maximize2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           ) : (
             <>

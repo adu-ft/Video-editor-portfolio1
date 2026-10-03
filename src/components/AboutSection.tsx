@@ -3,10 +3,6 @@ import {
   Compass,
   Play,
   Pause,
-  Volume2,
-  VolumeX,
-  Maximize2,
-  Sparkles,
   X,
   Film,
 } from 'lucide-react';
@@ -25,17 +21,38 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   const [isInView, setIsInView] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
-  // Custom Video Player States (100% Zero-Branding Experience)
+  // Custom Video Player States (Ultra-Clean, Zero Clutter)
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [isPlayerPaused, setIsPlayerPaused] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
   const [showControls, setShowControls] = useState(true);
+  const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 });
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoCardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Track container dimensions to lock YouTube in desktop mode at 1280x720
+  useEffect(() => {
+    if (!videoCardRef.current) return;
+    const updateSize = () => {
+      if (videoCardRef.current) {
+        const rect = videoCardRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setContainerSize({ width: rect.width, height: rect.height });
+        }
+      }
+    };
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(videoCardRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const baseWidth = 1280;
+  const baseHeight = 720;
+  const scale =
+    Math.max(containerSize.width / baseWidth, containerSize.height / baseHeight) * 1.32;
 
   // Send YouTube API postMessage commands to controlled hidden iframe
   const sendIframeCommand = (func: string, args: (string | number | boolean)[] = []) => {
@@ -47,26 +64,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     }
   };
 
-  // Video progress timer simulation (Total duration = 105s)
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isPlayingVideo && !isPlayerPaused) {
-      timer = setInterval(() => {
-        setVideoProgress((prev) => (prev >= 105 ? 0 : prev + 1));
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isPlayingVideo, isPlayerPaused]);
-
-  // Auto-hide controls when playing
+  // Auto-hide controls within 1 second as requested
   const resetControlsTimeout = () => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-    if (isPlayingVideo && !isPlayerPaused) {
-      controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 2500);
-    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 1000);
   };
 
   const handleTogglePlayPause = (e?: React.MouseEvent) => {
@@ -74,50 +78,18 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     if (isPlayerPaused) {
       sendIframeCommand('playVideo');
       setIsPlayerPaused(false);
+      setShowControls(false); // Disappears immediately on play
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     } else {
       sendIframeCommand('pauseVideo');
       setIsPlayerPaused(true);
+      setShowControls(true);
+      // Disappear within 1 sec even when paused
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 1000);
     }
-    resetControlsTimeout();
-  };
-
-  const handleToggleMute = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (isMuted) {
-      sendIframeCommand('unMute');
-      setIsMuted(false);
-    } else {
-      sendIframeCommand('mute');
-      setIsMuted(true);
-    }
-    resetControlsTimeout();
-  };
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const newPercent = Math.max(0, Math.min(1, clickX / rect.width));
-    const newTime = Math.floor(newPercent * 105);
-    setVideoProgress(newTime);
-    sendIframeCommand('seekTo', [newTime, true]);
-    resetControlsTimeout();
-  };
-
-  const handleFullscreen = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (!videoCardRef.current) return;
-    if (!document.fullscreenElement) {
-      videoCardRef.current.requestFullscreen?.().catch(() => {});
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-    }
-  };
-
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -228,6 +200,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
           onClick={() => {
             if (!isPlayingVideo) {
               setIsPlayingVideo(true);
+              setIsPlayerPaused(false);
+              setShowControls(false);
             }
           }}
           onMouseMove={handleMouseMove}
@@ -252,16 +226,24 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
           }}
         >
           {isPlayingVideo ? (
-            /* 100% Zero-Branding Scaled Video Player (Hides all YouTube UI, titles, avatars, watermarks) */
-            <div className="relative w-full h-full bg-black overflow-hidden select-none">
-              {/* Scaled & Cropped Frame: Crops out top title/avatar bar & bottom watermark */}
-              <div className="absolute w-[138%] h-[138%] -top-[19%] -left-[19%] pointer-events-none select-none">
+            /* 100% Zero-Branding Scaled Video Player (Desktop HD 1280x720 viewport eliminates mobile overlays) */
+            <div className="relative w-full h-full bg-black overflow-hidden select-none flex items-center justify-center">
+              {/* Desktop HD Viewport with Proportional Crop */}
+              <div
+                style={{
+                  width: `${baseWidth}px`,
+                  height: `${baseHeight}px`,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center center',
+                }}
+                className="pointer-events-none select-none flex-shrink-0 flex items-center justify-center"
+              >
                 <iframe
                   ref={iframeRef}
                   src="https://www.youtube.com/embed/6kYRUsXtS4s?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&loop=1&playlist=6kYRUsXtS4s"
                   title="Adarsh Yadav — Video Editor Showreel"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  className="w-full h-full object-cover border-0"
+                  className="w-full h-full object-cover border-0 pointer-events-none"
                 />
               </div>
 
@@ -272,26 +254,21 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 title="Click to play / pause video"
               />
 
-              {/* Pause Flash Indicator */}
-              {isPlayerPaused && (
-                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-200">
+              {/* Center Pause Indicator (Disappears within 1 second or instantly on play) */}
+              {isPlayerPaused && showControls && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-opacity duration-300">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl animate-in zoom-in-75 duration-150">
                     <Play size={30} className="ml-1 fill-white" />
                   </div>
                 </div>
               )}
 
-              {/* Top Bar with Showreel Title and Exit Button */}
+              {/* Discreet Exit Video Button (Top-Right, Disappears during playback) */}
               <div
-                className={`absolute top-0 inset-x-0 z-30 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${
+                className={`absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-30 transition-opacity duration-300 ${
                   showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
               >
-                <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                  <span className="w-2 h-2 rounded-full bg-[#FF4625] animate-ping" />
-                  <span>Adarsh Yadav — 2025 Showreel</span>
-                </div>
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -299,75 +276,11 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                     setIsPlayerPaused(false);
                   }}
                   aria-label="Exit video player"
-                  className="px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black border border-white/20 text-white text-xs font-medium backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer shadow-lg hover:scale-105"
+                  className="px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black border border-white/20 text-white text-xs font-medium backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95 hover:scale-105"
                 >
-                  <X size={13} />
+                  <X size={14} />
                   <span>Exit Video</span>
                 </button>
-              </div>
-
-              {/* Sleek Cinematic Custom Controls Bar (Fade-in on hover) */}
-              <div
-                className={`absolute inset-x-0 bottom-0 z-30 p-4 sm:p-6 bg-gradient-to-t from-black via-black/85 to-transparent transition-opacity duration-300 flex flex-col gap-2.5 ${
-                  showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                }`}
-              >
-                {/* Scrubber Progress Bar */}
-                <div
-                  onClick={handleSeek}
-                  className="w-full h-1.5 hover:h-2.5 bg-white/20 rounded-full overflow-hidden cursor-pointer transition-all relative group/scrub"
-                  title="Click to seek"
-                >
-                  <div
-                    className="h-full bg-[#FF4625] rounded-full relative transition-all duration-150"
-                    style={{ width: `${(videoProgress / 105) * 100}%` }}
-                  >
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover/scrub:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-
-                {/* Controls Row */}
-                <div className="flex items-center justify-between text-white text-xs pt-1">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={handleTogglePlayPause}
-                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
-                      title={isPlayerPaused ? 'Play' : 'Pause'}
-                    >
-                      {isPlayerPaused ? (
-                        <Play size={15} className="ml-0.5 fill-current" />
-                      ) : (
-                        <Pause size={15} />
-                      )}
-                    </button>
-
-                    <button
-                      onClick={handleToggleMute}
-                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
-                      title={isMuted ? 'Unmute' : 'Mute'}
-                    >
-                      {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                    </button>
-
-                    <span className="font-mono text-[11px] text-neutral-300 tracking-wider">
-                      {formatTime(videoProgress)} / 01:45
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="bg-white/10 px-2.5 py-0.5 rounded text-[10px] font-mono text-white/90">
-                      4K 60FPS
-                    </span>
-
-                    <button
-                      onClick={handleFullscreen}
-                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
-                      title="Fullscreen"
-                    >
-                      <Maximize2 size={14} />
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           ) : (
