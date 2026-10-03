@@ -136,12 +136,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     >
       <div className="max-w-6xl mx-auto">
         {/* Top Header Block: Left Title & Right Intro Paragraph + Button */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start mb-12 sm:mb-16">
-          {/* Left Column: Tag and vibrant Coral-Red "About me" Title with scroll typography animation */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-8 sm:mb-10">
+          {/* Left Column: Tag and vibrant Coral-Red "About me" Title */}
           <div className="lg:col-span-4 flex flex-col items-start pt-1">
             {/* Tag with smooth sliding entrance */}
             <div
-              className="flex items-center gap-2.5 text-xs font-medium text-neutral-700 tracking-normal mb-3 transition-all duration-700"
+              className="flex items-center gap-2 text-xs font-medium text-neutral-600 tracking-normal mb-2.5 transition-all duration-700"
               style={{
                 opacity: isInView ? 1 : 0,
                 transform: isInView ? 'translate3d(0, 0, 0)' : 'translate3d(-20px, 0, 0)',
@@ -152,41 +152,41 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               <span className="w-4 h-4 rounded-full border border-[#FF3B1D] text-[#FF3B1D] flex items-center justify-center">
                 <Compass size={11} className="rotate-45" />
               </span>
-              <span className="font-semibold text-neutral-800">Hey, Just An Intro</span>
+              <span className="font-semibold text-neutral-700">Hey, Just An Intro</span>
             </div>
 
-            {/* Exactly as in reference: Both words "About me" in glowing coral-red with cinematic typography reveal */}
+            {/* "About me" in glowing coral-red with cinematic typography reveal */}
             <h2
-              className="font-['Syne',sans-serif] text-5xl sm:text-6xl font-bold tracking-tight text-[#FF3B1D] leading-none transition-all duration-800"
+              className="font-['Syne',sans-serif] text-4xl sm:text-5xl font-bold tracking-tight text-[#FF3B1D] leading-none transition-all duration-800"
               style={{
                 opacity: isInView ? 1 : 0,
-                transform: isInView ? 'translate3d(0, 0, 0)' : 'translate3d(0, 28px, 0)',
-                filter: isInView ? 'blur(0px)' : 'blur(6px)',
-                transitionDelay: '200ms',
+                transform: isInView ? 'translate3d(0, 0, 0)' : 'translate3d(0, 24px, 0)',
+                filter: isInView ? 'blur(0px)' : 'blur(4px)',
+                transitionDelay: '150ms',
               }}
             >
               About me
             </h2>
           </div>
 
-          {/* Right Column: Large editorial body copy + Get in touch CTA */}
-          <div className="lg:col-span-8 flex flex-col items-start">
-            <div className="mb-7">
+          {/* Right Column: Compact, visual-first description + Get in touch CTA */}
+          <div className="lg:col-span-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+            <div className="max-w-xl">
               <TextReveal
-                text="I’m a passionate video editor helping creators, brands, and businesses bring their stories to life through impactful visuals. With a keen eye for timing, transitions, and storytelling, I turn raw footage into polished content that connects with audiences."
-                className="text-xl sm:text-2xl md:text-[26px] lg:text-[27px] font-normal leading-[1.38] text-neutral-900 tracking-[-0.015em]"
-                initialDelay={250}
-                staggerDelay={20}
+                text="Transforming raw footage into high-impact cinematic edits, dynamic pacing, and visual storytelling crafted to capture attention."
+                className="text-sm sm:text-[15px] font-normal leading-relaxed text-neutral-600 tracking-normal"
+                initialDelay={200}
+                staggerDelay={16}
               />
             </div>
 
             <button
               onClick={onContactClick}
-              className="px-7 py-3 rounded-full bg-[#FF3B1D] hover:bg-[#e03417] active:scale-95 text-white font-medium text-sm shadow-md shadow-[#FF3B1D]/25 cursor-pointer transition-all duration-700"
+              className="px-6 py-2.5 rounded-full bg-[#FF3B1D] hover:bg-[#e03417] active:scale-95 text-white font-medium text-xs sm:text-sm shadow-md shadow-[#FF3B1D]/25 cursor-pointer transition-all duration-700 flex-shrink-0 self-start sm:self-auto"
               style={{
                 opacity: isInView ? 1 : 0,
-                transform: isInView ? 'translate3d(0, 0, 0) scale(1)' : 'translate3d(0, 20px, 0) scale(0.95)',
-                transitionDelay: '700ms',
+                transform: isInView ? 'translate3d(0, 0, 0) scale(1)' : 'translate3d(0, 16px, 0) scale(0.95)',
+                transitionDelay: '350ms',
               }}
             >
               Get in touch
